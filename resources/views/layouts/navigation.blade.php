@@ -15,6 +15,12 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.quotes.index')" :active="request()->routeIs('admin.quotes.index')">
+                        {{ __('Cotizaciones') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('kill.show')" :active="request()->routeIs('kill.show')">
+                        {{ __('Kill') }}
+                    </x-nav-link>
                 </div>
             </div>
 
