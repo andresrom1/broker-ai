@@ -61,6 +61,13 @@ class QuoteRequestService
             ];
         }
     }
+    /**
+     * Actualiza el estado de la solicitud
+     */
+    
+    public function updateStatus(int $quoteRequestId, bool $status):bool {
+        return $quoteRequest = QuoteRequest::find($quoteRequestId)->update(['quoted' => true]);
+    }
     
     /**
      * Validar datos de la solicitud

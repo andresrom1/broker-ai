@@ -69,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 
 const messages = ref([])
@@ -122,10 +122,48 @@ async function handleInput() {
 }
 
 onMounted(() => {
+  console.log('Componente montado. Session ID:', sessionId.value);
+  initializeEcho();
+
   // Mensaje inicial del bot (esto ya lo tienes)
   appendMessage('bot', '¡Hola! Soy tu Broker Virtual. ¿En qué puedo ayudarte hoy?');
   
 });
+
+onBeforeUnmount(() => {
+  // Desuscribirse del canal cuando el componente se desmonte para evitar fugas de memoria
+  if (window.Echo && sessionId.value) {
+    window.Echo.leaveChannel(`user-quotes.${sessionId.value}`);
+    console.log('Se ha dejado el canal de quotes:', `user-quotes.${sessionId.value}`);
+  }
+});
+
+// Función para inicializar Laravel Echo y escuchar el evento
+const initializeEcho = () => {
+  if (typeof window.Echo === 'undefined') {
+    console.error('Laravel Echo no está inicializado. Asegúrate de que resources/js/bootstrap.js esté correctamente configurado y cargado.');
+    return;
+  }
+
+  console.log('Intentando escuchar en el canal:', `user-quotes.${sessionId.value}`);
+  
+  // Suscribirse al canal privado del usuario
+  window.Echo.channel(`user-quotes.${sessionId.value}`)
+    .listen('.alternatives.updated', (e) => { // Escucha el evento 'alternatives.updated' (broadcastAs)
+      console.log('Evento "alternatives.updated" recibido:', e);
+      // Actualizar el estado del componente con las alternativas recibidas
+      //quotes.value = e.alternatives;
+      //quotesAvailable.value = true;
+      console.log(e);
+      // Opcional: Puedes añadir un mensaje de chat para informar al usuario
+      appendMessage('bot', e.message);
+
+    })
+    .error((error) => {
+      console.error('Error al escuchar en el canal user-quotes:', error);
+      // Manejar errores de conexión o autenticación del canal
+    });
+};
 
 </script>
 

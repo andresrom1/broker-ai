@@ -19,7 +19,7 @@
                     @endif">
                     {{ ucfirst($request->status ?? 'pending') }}
                 </span>
-                <a href="{{ route('admin.quotes.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded whitespace-nowrap">
+                <a href="{{ route('quotes.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded whitespace-nowrap">
                     Volver
                 </a>
             </div>
