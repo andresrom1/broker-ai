@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
-use App\Http\Controllers\QuoteAlternativeController;
+use App\Http\Controllers\Quotes\QuoteAlternativeController;
+use App\Services\AssistantFlow\RetrieveMessageService;
+use App\Services\AssistantFlow\ThreadManagerService;
+use App\Services\Messages\MessageFormatterService;
 use App\Services\Quotes\QuoteAlternativeService;
 use App\Services\Quotes\QuoteRequestService;
 use Illuminate\Support\ServiceProvider;
+use App\Services\AssistantFlow\AdminMessageForAssistantService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
         // Aunque no es un singleton, aún necesitas decirle a Laravel cómo construirlo si sus dependencias no son autowireables fácilmente
         $this->app->bind(QuoteAlternativeService::class, function ($app) {
             return new QuoteAlternativeService(
-                $app->make(QuoteRequestService::class) // Inyecta QuoteRequestService
+                $app->make(QuoteRequestService::class), // Inyecta QuoteRequestService
+                $app->make(AdminMessageForAssistantService::class),
+                $app->make(RetrieveMessageService::class) // Inyecta QuoteRequestService
                 // Si QuoteAlternativeService tuviera más dependencias, las inyectarías aquí también
                 // $app->make(ThreadManagerService::class),
                 // $app->make(MessageFormatterService::class)
@@ -44,6 +50,28 @@ class AppServiceProvider extends ServiceProvider
             ->give(function ($app) {
                 return $app->make(QuoteAlternativeService::class);
             });
+
+         // --- CORRECCIÓN AQUÍ: Binding para RetrieveMessageService ---
+        // Depende de MessageFormatterService
+        $this->app->bind(RetrieveMessageService::class, function ($app) {
+            return new RetrieveMessageService(
+                $app->make(MessageFormatterService::class)
+            );
+        });
+
+
+        $this->app->bind(AdminMessageForAssistantService::class, function ($app) { // <-- Nuevo nombre
+            return new AdminMessageForAssistantService( // <-- Nuevo nombre
+                $app->make(ThreadManagerService::class),
+                $app->make(MessageFormatterService::class)
+            );
+        });
+
+        // Binding para MessageFormatterService
+        // Este servicio es vital para formatear mensajes para el frontend.
+        $this->app->bind(MessageFormatterService::class, function ($app) {
+            return new MessageFormatterService();
+        });
     }
 
     /**

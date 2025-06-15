@@ -17,7 +17,7 @@ class ThreadManagerService
      */
     public function getOrCreateThread(string $sessionId): string
     {
-        $cacheKey = "thread_{$sessionId}";
+        $cacheKey = "session_{$sessionId}";
         $threadId = Cache::get($cacheKey);
 
         if ($threadId) {
@@ -43,6 +43,32 @@ class ThreadManagerService
         } catch (\Exception $e) {
             Log::error('Failed to create new thread', ['error' => $e->getMessage()]);
             throw new \Exception('No se pudo crear el hilo de conversación con el asistente.');
+        }
+    }
+    /**
+     * Obtiene un Thread ID existente
+     *
+     * @param string $threadId
+     * @return string Thread ID
+     * @throws \Exception Si hay un error al interactuar con OpenAI.
+     */
+    public function getThread(string $threadId): string
+    {
+        //$threadId = Cache::get("session_{$sessionId}");
+        
+        Log::info(__METHOD__ . __LINE__, ['threadId' => $threadId]);
+        
+        try {
+            // Verificar si el thread aún existe en OpenAI
+            OpenAI::threads()->retrieve($threadId);
+            Log::info('Existing thread retrieved from cache and verified with OpenAI', ['thread_id' => $threadId]);
+            return $threadId;
+        } catch (\Throwable $e) {
+            // Si el thread ya no existe en OpenAI (ej. fue eliminado), lanzar una excepcion.
+            Log::warning('Cached thread not found in OpenAI, Lanzando excepcion.', ['thread_id' => $threadId, 'error' => $e->getMessage()]);
+            Log::error('Fallo al enviar el mensaje del admin al asistente');
+            // La caché se invalidará al crear y guardar el nuevo Thread ID.
+            throw new \Exception('No se pudo encontrar el hilo.');
         }
     }
 }

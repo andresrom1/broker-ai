@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 use App\Models\QuoteAlternative;
 use Illuminate\Support\Facades\Log;
 
+
 class QuoteAlternativeController extends Controller {
     protected QuoteAlternativeService $quoteAlternativeService;
 
-    // Inyecta el nuevo servicio
     public function __construct(QuoteAlternativeService $quoteAlternativeService) {
         $this->quoteAlternativeService = $quoteAlternativeService;
     }
@@ -25,9 +25,9 @@ class QuoteAlternativeController extends Controller {
             'alternatives.*.coverage'  => 'required|string',
             'alternatives.*.observations' => 'nullable|string',
         ]);
-        Log::info('Aqui');
+        Log::info(__METHOD__, ['Request:' => $data]);
         
-        // Delegar la lógica de guardar alternativas, completar la cotización y disparar el evento al nuevo servicio
+        // Delegar la lógica de guardar alternativas, completar la cotización y disparar el evento al nuevo servicio       
         $result = $this->quoteAlternativeService->updateAlternativesAndCompleteQuote( // <--- Llama al nuevo servicio
             $data['quote_request_id'],
             $data['alternatives']

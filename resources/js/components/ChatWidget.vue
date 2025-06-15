@@ -148,7 +148,7 @@ const initializeEcho = () => {
   console.log('Intentando escuchar en el canal:', `user-quotes.${sessionId.value}`);
   
   // Suscribirse al canal privado del usuario
-  window.Echo.channel(`user-quotes.${sessionId.value}`)
+  window.Echo.channel(`user-quotes.${sessionId.value}`) // Escucha el canal 'user.quotes.$sessionId'
     .listen('.alternatives.updated', (e) => { // Escucha el evento 'alternatives.updated' (broadcastAs)
       console.log('Evento "alternatives.updated" recibido:', e);
       // Actualizar el estado del componente con las alternativas recibidas

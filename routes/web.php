@@ -10,6 +10,37 @@ Route::get('/', function () {
     return view('quote-form');
 });
 
+Route::get('/dispatch', function () {
+    // Reemplaza 'TU_SESSION_ID_DEL_FRONTEND' con el sessionId real de tu navegador/ChatWidget
+    $sessionId = 'g8QfUQu4qze82aAtp9HyPbaM';
+
+    $quoteRequestId = 1; // Puedes usar cualquier ID de quote request válido o uno para pruebas
+
+    $alternatives = [
+        [
+            'company' => 'Aseguradora Alfa',
+            'price' => 12500,
+            'coverage' => 'cobertura_a',
+            'observations' => 'Opción con cobertura básica ampliada.',
+        ],
+        [
+            'company' => 'Seguros Beta',
+            'price' => 18000,
+            'coverage' => 'cobertura_b',
+            'observations' => 'Opción con cobertura todo riesgo con franquicia.',
+        ],
+    ];
+
+    $message = "¡Hola! Tu cotización ha sido completada por el agente. Aquí tienes las alternativas que hemos encontrado para ti:";
+
+    \Event::dispatch(new \App\Events\QuotesAlternativesUpdated(
+        $quoteRequestId,
+        $alternatives,
+        $sessionId,
+        $message
+    ));
+});
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
