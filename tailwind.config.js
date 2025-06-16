@@ -15,6 +15,11 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            fontSize: {
+                'xxs': '0.625rem', // Example: Custom extra-extra-small size
+                'xxxs': '0.500rem',
+                'xxxxs': '0.375rem',
+            },
         },
     },
     safelist: [

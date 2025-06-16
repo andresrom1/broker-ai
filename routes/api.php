@@ -29,3 +29,4 @@ Route::get('/quote-requests/{dni}', [QuoteRequestController::class, 'showByDni']
 Route::post('/quote-alternatives', [QuoteAlternativeController::class, 'store']);
 
 Route::post('/chat/send', [OpenAiChatController::class, 'send']);
+Route::get('/messages', [OpenAiChatController::class, 'getMessages']);

@@ -21,12 +21,19 @@
       <div
         v-for="(msg, index) in messages"
         :key="index"
-        :class="['message-wrapper', msg.from === 'bot' ? 'bot-message' : 'user-message']"
+        :class="['message-wrapper', msg.from === 'bot' || msg.from === 'assistant' ? 'bot-message' : 'user-message']"
       >
-        <div class="message-bubble" :class="msg.from === 'bot' ? 'bot-bubble' : 'user-bubble'">
+        <div class="message-bubble" :class="msg.from === 'bot' || msg.from === 'assistant' ? 'bot-bubble' : 'user-bubble'">
           <div class="message-text">{{ msg.text }}</div>
+           <!-- Added time bubble -->
+          <div :class="[
+            'absolute text-xxxs',
+            msg.from === 'user' ? 'bottom-1 right-2 text-blue-100' : 'bottom-1 right-2 text-gray-500']">
+            12:33 p.m.
+          </div>
         </div>
       </div>
+      
       
       <!-- Indicador de escritura sutil -->
       <Transition name="typing" appear>
@@ -85,6 +92,7 @@ function generateSessionId() {
 }
 
 function appendMessage(from, text) {
+  console.log(from,text);
   messages.value.push({ from, text, timestamp: new Date() })
   scrollToBottom()
 }
@@ -121,12 +129,44 @@ async function handleInput() {
   }
 }
 
+// --- NUEVA FUNCIÓN: Obtener mensajes del backend ---
+const fetchMessages = async () => {
+  try {
+    const response = await axios.get('/api/messages', { // Nuevo endpoint para obtener mensajes
+      params: {
+        session_id: sessionId.value
+      }
+    });
+    if (response.data && response.data.messages) {
+      //messages.value = response.data.messages; // Rellenar con mensajes de la DB
+      console.log('Mensajes anteriores cargados:', messages.value);
+      console.log('Response: ', response.data.messages);
+
+      response.data.messages.forEach(message => {
+        appendMessage(message.role, message.content)
+      });
+    }
+  } catch (error) {
+    console.error('Error al cargar mensajes anteriores:', error);
+    // Si no hay mensajes o falla, aún mostramos el mensaje inicial del asistente
+    if (messages.value.length === 0) {
+      messages.value.push({ role: 'assistant', content: '¡Hola! ¿En qué puedo ayudarte hoy?' });
+    }
+  }
+};
+
 onMounted(() => {
   console.log('Componente montado. Session ID:', sessionId.value);
   initializeEcho();
 
+  fetchMessages(); // Llamar a la función para obtener mensajes
+  scrollToBottom(); // Desplazar al final después de cargar los mensajes iniciales
+  // async () => {
+  //   await fetchMessages(); // Llamar a la función para obtener mensajes
+  //   scrollToBottom(); // Desplazar al final después de cargar los mensajes iniciales
+  // };
   // Mensaje inicial del bot (esto ya lo tienes)
-  appendMessage('bot', '¡Hola! Soy tu Broker Virtual. ¿En qué puedo ayudarte hoy?');
+  //appendMessage('bot', '¡Hola! Soy tu Broker Virtual. ¿En qué puedo ayudarte hoy?');
   
 });
 
@@ -295,6 +335,7 @@ body {
 .message-bubble {
   max-width: 80%;
   padding: 10px 15px; /* Padding interno de la burbuja */
+  padding-right: 30px;
   border-radius: 20px; /* Forma de píldora */
   word-wrap: break-word;
   transform: translateY(-1px); /* Elevación sutil por defecto */
@@ -336,7 +377,8 @@ body {
 .message-text {
   font-size: 14.5px;
   line-height: 1.5;
-  margin: 0;
+  padding-bottom: 3px;
+  /* margin: 0; */
 }
 
 .typing-indicator {
