@@ -55,7 +55,7 @@ class CacheManagerService
             return $data;
         }
         
-        Log::info('Datos del vehículo no encontrados en caché', ['thread_id' => $threadId, 'cache_key' => $cacheKey]);
+        Log::warning('Datos del vehículo no encontrados en caché', ['thread_id' => $threadId, 'cache_key' => $cacheKey]);
         return null;
     }
     
@@ -75,7 +75,7 @@ class CacheManagerService
             return $data;
         }
         
-        Log::info('Datos de la cobertura no encontrados en caché', ['thread_id' => $threadId, 'cache_key' => $cacheKey]);
+        Log::warning('Datos de la cobertura no encontrados en caché', ['thread_id' => $threadId, 'cache_key' => $cacheKey]);
         return null;
     }
     

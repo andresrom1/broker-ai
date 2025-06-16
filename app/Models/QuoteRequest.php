@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class QuoteRequest extends Model
 {
     protected $fillable = [
+        'lead_id',
         'vehicle_brand',
         'vehicle_model',
         'vehicle_version',
@@ -16,11 +17,22 @@ class QuoteRequest extends Model
         'dni',
         'coverage_type',
         'phone',
-        'session_id',
         'quoted',
     ];
 
-    public function alternatives() {
+    /**
+     * Define la relación: una QuoteRequest puede tener muchas QuoteAlternatives.
+     */
+    public function alternatives()
+    {
         return $this->hasMany(QuoteAlternative::class);
+    }
+
+    /**
+     * Define la relación: una QuoteRequest pertenece a un Lead.
+     */
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class);
     }
 }

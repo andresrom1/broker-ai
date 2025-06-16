@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Events\QuotesAlternativesUpdated; // Importa tu evento
+use App\Services\Messages\MessageFormatterService;
 
 
 class QuoteAlternativeService
@@ -17,15 +18,19 @@ class QuoteAlternativeService
     private QuoteRequestService $quoteRequestService;
     private AdminMessageForAssistantService $sendToAssistant;
     private RetrieveMessageService $retrieveMessageService;
+    private MessageFormatterService $messageFormatter;
 
     public function __construct(
         QuoteRequestService $quoteRequestService, 
         AdminMessageForAssistantService $sendToAssistant,
-        RetrieveMessageService $retrieveMessageService){
+        RetrieveMessageService $retrieveMessageService,
+        MessageFormatterService $messageFormatter){
             $this->quoteRequestService = $quoteRequestService;
             $this->sendToAssistant = $sendToAssistant;
             $this->retrieveMessageService = $retrieveMessageService;
+            $this->messageFormatter = $messageFormatter;
     }
+
     /**
      * Actualiza las alternativas de cotización para una solicitud y la marca como cotizada,
      * disparando el evento de actualización.
@@ -60,15 +65,26 @@ class QuoteAlternativeService
             $this->quoteRequestService->updateStatus($quoteRequestId,true);
             
             DB::commit();
-            Log::info(__METHOD__,['Status de quote actualizado']);
+            Log::info(__METHOD__.__LINE__,['Status de quote actualizado']);
 
             // Disparar el evento *después* de que la transacción se ha completado
             // Asegúrate de recargar las alternativas si no lo hiciste con `with` al inicio
             // $quoteRequest->refresh(); // Recarga el modelo completo
             $quoteRequest->load('alternatives'); // Luego carga las relaciones
-            
-            //$quoteRequest = QuoteRequest::with('alternatives')->findOrFail($quoteRequestId);
             Log::info(__METHOD__,['$quoteRequest_' => $quoteRequest]);
+            
+            // Asegurarse de tener un Lead y un session_id válido
+            if (!$quoteRequest->lead || empty($quoteRequest->lead->session_id)) {
+                Log::error(__METHOD__.__LINE__.'Lead o Session ID no encontrado para QuoteRequest al intentar enviar alternativas.', [
+                    'quote_request_id' => $quoteRequestId,
+                    'lead_exists' => (bool) $quoteRequest->lead,
+                    'session_id_empty' => empty($quoteRequest->lead->session_id ?? null)
+                ]);
+                return ['success' => false, 'message' => 'No se pudo notificar al usuario: Lead o Session ID ausente.'];
+            }
+
+            $sessionId = $quoteRequest->lead->session_id; // Obtener sessionId del Lead
+            
           
             $messageContent = "¡Hola! Tu cotización ha sido completada. Aquí tienes las alternativas que hemos encontrado para ti:";
             
@@ -81,12 +97,15 @@ class QuoteAlternativeService
             ])->toArray();
             
             $adminMessage = "Mensaje del Agente: " . $messageContent . json_encode($broadcastableAlternatives);
+            $adminMessage .= "\nPor favor, formula una respuesta amigable para el usuario con estas opciones.";
             
             // Aca tengo que usar el threadId que esta en la cache
             // con la clave '$quoteRequest->session_id' => threadId
-            $threadId = Cache::get('session_'.$quoteRequest->session_id);
+            //$threadId = Cache::get('session_'.$quoteRequest->session_id);
+            $threadId = $quoteRequest->lead->thread_id;
+
             Log::info(__METHOD__ . __LINE__ . ' Aqui se recupera el threadId para todo el flow de Agregar mensaje de Admin', 
-            ['session_id' => $quoteRequest->session_id,'$threadId' => $threadId]);
+            ['session_id' => $quoteRequest->lead->session_id,'$threadId' => $threadId]);
 
             // Llama a tu servicio existente para añadir el mensaje al hilo y disparar el Run
             Log::info( __METHOD__ . ": Este es el mensaje que se enviara al asistente:", ['Mensaje:' => $adminMessage]);
@@ -106,7 +125,7 @@ class QuoteAlternativeService
             \Event::dispatch(new QuotesAlternativesUpdated(
                 $quoteRequest->id,
                 $broadcastableAlternatives,
-                $quoteRequest->session_id, // Asegúrate de que este campo exista y esté poblado en QuoteRequest
+                $quoteRequest->lead->session_id, // Asegúrate de que este campo exista y esté poblado en QuoteRequest
                 $msg['message']
             ));
 

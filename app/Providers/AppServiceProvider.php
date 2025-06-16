@@ -27,10 +27,10 @@ class AppServiceProvider extends ServiceProvider
             return new QuoteAlternativeService(
                 $app->make(QuoteRequestService::class), // Inyecta QuoteRequestService
                 $app->make(AdminMessageForAssistantService::class),
-                $app->make(RetrieveMessageService::class) // Inyecta QuoteRequestService
+                $app->make(RetrieveMessageService::class), // Inyecta QuoteRequestService
+                $app->make(MessageFormatterService::class)
                 // Si QuoteAlternativeService tuviera más dependencias, las inyectarías aquí también
                 // $app->make(ThreadManagerService::class),
-                // $app->make(MessageFormatterService::class)
             );
         });
 

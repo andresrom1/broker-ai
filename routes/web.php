@@ -53,9 +53,11 @@ Route::middleware('auth')->group(function () {
 
 Route::view('/cotizar', 'quote-form')->middleware('auth');
 
-Route::get('/admin/quotes', [QuoteController::class, 'index'])->name('quotes.index');
-Route::get('/admin/quotes/{id}', [QuoteController::class, 'show'])->name('quotes.show');
-Route::post('/admin/quotes/{id}', [QuoteAlternativeController::class, 'store'])->name('quotes.alternatives.store');
+Route::middleware('auth')->group(function(){
+    Route::get('/admin/quotes', [QuoteController::class, 'index'])->name('quotes.index');
+    Route::get('/admin/quotes/{id}', [QuoteController::class, 'show'])->name('quotes.show');
+    Route::post('/admin/quotes/{id}', [QuoteAlternativeController::class, 'store'])->name('quotes.alternatives.store');
+});
 
 Route::get('kill', [KillController::class,'show'])->name('kill.show');
 Route::post('/kill/handle', [KillController::class, 'handle'])->name('kill.handle');

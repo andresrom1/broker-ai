@@ -12,6 +12,10 @@ return new class extends Migration
     public function up(): void {
         Schema::create('quote_requests', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('lead_id')
+                ->nullable() // Podría ser nullable si QuoteRequest puede existir sin Lead al principio (ej. migración de datos antiguos)
+                ->constrained('leads') // Referencia a la tabla 'leads'
+                ->onDelete('set null');
             $table->string('vehicle_brand');
             $table->string('vehicle_model');
             $table->string('vehicle_version')->nullable();

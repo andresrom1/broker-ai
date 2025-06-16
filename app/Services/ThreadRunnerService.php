@@ -20,7 +20,7 @@ class ThreadRunnerService
 
     public function __construct(int $timeoutSeconds = 30){
         $this->timeoutSeconds = $timeoutSeconds;
-        $this->quoteRequest = new QuoteRequestService ();
+        //$this->quoteRequest = new QuoteRequestService ();
         $this->submitOutput = new SubmitOutputStreamed ();
     }
     /**

@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\QuoteRequestController;
-use App\Http\Controllers\QuoteAlternativeController;
+use App\Http\Controllers\Quotes\QuoteAlternativeController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\OpenAiChatController;
 

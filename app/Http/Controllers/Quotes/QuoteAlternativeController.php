@@ -25,7 +25,7 @@ class QuoteAlternativeController extends Controller {
             'alternatives.*.coverage'  => 'required|string',
             'alternatives.*.observations' => 'nullable|string',
         ]);
-        Log::info(__METHOD__, ['Request:' => $data]);
+        Log::info(__METHOD__.__LINE__, ['Request:' => $data]);
         
         // Delegar la lógica de guardar alternativas, completar la cotización y disparar el evento al nuevo servicio       
         $result = $this->quoteAlternativeService->updateAlternativesAndCompleteQuote( // <--- Llama al nuevo servicio

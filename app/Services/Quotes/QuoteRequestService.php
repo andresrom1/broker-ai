@@ -3,20 +3,47 @@
 namespace App\Services\Quotes;
 
 use App\Models\QuoteRequest;
+use App\Services\AssistantFlow\CacheManagerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\Lead;
 
 class QuoteRequestService
 {
-    /**
-     * Almacenar una nueva solicitud de quote
-     */
-    public function crearSolicitud(array $data, ?string $coberturaElegida = null, $sessionId)
+    protected CacheManagerService $cacheManagerService;
+
+    public function __construct(CacheManagerService $cacheManagerService)
     {
+        $this->cacheManagerService = $cacheManagerService;
+    }
+
+    /**
+     * Crea una nueva solicitud de cotización o la actualiza si ya existe una pendiente para este Lead.
+     *
+     * @param array $data Los datos del vehículo (marca, modelo, etc.).
+     * @param string $coberturaElegida El tipo de cobertura solicitado.
+     * @param int $leadId El ID del Lead al que se asocia esta solicitud. Antes era sessionId.
+     * @return array Resultado de la operación (ej. ['success' => bool, 'message' => string, 'data' => QuoteRequest|null])
+     */
+    public function crearSolicitud(array $data, ?string $coberturaElegida = null, $leadId)
+    {
+        Log::info(__METHOD__.__LINE__.'Intentando crear o actualizar solicitud de cotización.', [
+            'lead_id' => $leadId,
+            'vehicle_data' => $data,
+            'coverage_type' => $coberturaElegida
+        ]);
+
         try {
+            // Asegúrate de que el Lead exista
+            $lead = Lead::find($leadId);
+            if (!$lead) {
+                Log::error('Lead no encontrado al crear solicitud de cotización.', ['lead_id' => $leadId]);
+                return ['success' => false, 'message' => 'Lead asociado no encontrado.'];
+            }
+
             DB::beginTransaction();
-            
+                        
             $solicitud = QuoteRequest::create([
                 'vehicle_brand'      => $data['marca'],
                 'vehicle_model'      => $data['modelo'],
@@ -25,7 +52,7 @@ class QuoteRequestService
                 'vehicle_year'       => $data['year'],
                 'vehicle_postal_code'=> $data['cp'],
                 'coverage_type'      => $coberturaElegida,
-                'session_id' => $sessionId, 
+                'lead_id' => $leadId, 
 
             ]);
             
@@ -39,11 +66,19 @@ class QuoteRequestService
             
             DB::commit();
             
-            Log::info('Nueva solicitud de quote creada', [
+            Log::info(__METHOD__.__line__.'Nueva solicitud de quote creada', [
                 'quote_request_id' => $solicitud->id,
-                'customer_email' => $solicitud->customer_email
             ]);
             
+            // Limpiar la caché de vehicle_data y coverage_data ya que la solicitud se ha guardado en DB.
+            // Asegúrate de pasar el threadId correcto aquí. El threadId está en el Lead.
+            $threadId = $lead->thread_id;
+            if ($threadId) {
+                $this->cacheManagerService->forgetVehicleData($threadId);
+                $this->cacheManagerService->forgetCoverageData($threadId);
+                Log::info(__METHOD__.__LINE__.'Caché de vehículo y cobertura limpiada.', ['thread_id' => $threadId]);
+            }
+
             return [
                 'success' => true,
                 'data' => $solicitud,
@@ -63,10 +98,12 @@ class QuoteRequestService
     }
     /**
      * Actualiza el estado de la solicitud
+     * @param int $quoteRequestId El request Id que se va a actualizar
+     * @param bool $status Si la cotizacion esta Cotizada, pasar true. Si esta Pendiente pasar false
      */
     
     public function updateStatus(int $quoteRequestId, bool $status):bool {
-        return $quoteRequest = QuoteRequest::find($quoteRequestId)->update(['quoted' => true]);
+        return $quoteRequest = QuoteRequest::find($quoteRequestId)->update(['quoted' => $status]);
     }
     
     /**

@@ -12,7 +12,7 @@ use App\Services\AssistantFlow\ToolExecutionService; // Mover a esta ruta
 class RunManagerService
 {
     protected int $maxPollingAttempts = 60; // Total de 120 segundos
-    protected int $pollingDelay = 2; // Segundos entre cada consulta
+    protected int $pollingDelay = 1; // Segundos entre cada consulta
 
     protected ToolExecutionService $toolExecutionService;
 
@@ -24,12 +24,13 @@ class RunManagerService
     /**
      * Crea un nuevo Run y lo consulta hasta que finalice o requiera una acción.
      *
-     * @param string $threadId
-     * @param string $assistantId
+     * @param string $threadId El ThreadId de OpenAi
+     * @param string $assistantId El AssistantId de OpenAi
+     * @param int $leadId El id del Lead
      * @return ThreadRunResponse El objeto Run final (completed, failed, etc.)
      * @throws \Exception Si el Run falla o alcanza el timeout.
      */
-    public function createAndPollRun(string $threadId, string $assistantId, $sessionId): ThreadRunResponse
+    public function createAndPollRun(string $threadId, string $assistantId, $leadId): ThreadRunResponse
     {
         $run = OpenAI::threads()->runs()->create(
             $threadId,
@@ -57,7 +58,7 @@ class RunManagerService
                 // El ToolExecutionService procesará las tool_calls y enviará los outputs.
                 // Después de que submitToolOutputsStreamed se complete, el Run volverá a 'queued' o 'in_progress'.
                 try {
-                    $this->toolExecutionService->handleToolCalls($threadId, $run, $sessionId);
+                    $this->toolExecutionService->handleToolCalls($threadId, $run, $leadId);
                     Log::info('Tool calls handled by ToolExecutionService', ['run_id' => $run->id]);
                 } catch (\Exception $e) {
                     Log::error('Error handling tool calls by ToolExecutionService', ['run_id' => $run->id, 'error' => $e->getMessage()]);

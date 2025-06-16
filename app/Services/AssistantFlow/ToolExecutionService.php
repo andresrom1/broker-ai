@@ -2,6 +2,7 @@
 
 namespace App\Services\AssistantFlow;
 
+use App\Models\Lead;
 use Log;
 use OpenAI\Laravel\Facades\OpenAI;
 use OpenAI\Responses\Threads\Runs\ThreadRunResponse;
@@ -40,9 +41,10 @@ class ToolExecutionService
      *
      * @param string $threadId
      * @param ThreadRunResponse $run El objeto Run actual con status 'requires_action'.
+     * @param int $leadId El id de Lead
      * @throws \Exception Si falla el procesamiento o el envío de outputs.
      */
-    public function handleToolCalls(string $threadId, ThreadRunResponse $run, $sessionId): void
+    public function handleToolCalls(string $threadId, ThreadRunResponse $run, int $leadId): void
     {
         if ($run->status !== 'requires_action') {
             Log::warning('handleToolCalls called for a run not requiring action.', ['run_id' => $run->id, 'status' => $run->status]);
@@ -150,7 +152,7 @@ class ToolExecutionService
 
                 // 2. Ejecutar la creación de la cotización SOLO si tenemos ambos datos
                 if ($finalVehicleData && $finalCoverageChosen) {
-                    $quoteCreationResult = $this->quoteRequestService->crearSolicitud($finalVehicleData, $finalCoverageChosen, $sessionId);
+                    $quoteCreationResult = $this->quoteRequestService->crearSolicitud($finalVehicleData, $finalCoverageChosen, $leadId);
                     Log::info('Quote Request creado', ['quote_result' => $quoteCreationResult]);
 
                     if ($quoteCreationResult && $quoteCreationResult['success']) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\AssistantService;
+use Illuminate\Support\Facades\Log;
 
 class OpenAiChatController extends Controller
 {
@@ -21,6 +22,7 @@ class OpenAiChatController extends Controller
      */
     public function send(Request $request)
     {
+        Log::info('Entrada al ChatController::sendMessage.', ['request_all' => $request->all()]);
         $validated = $request->validate([
             'session_id' => 'required|string',
             'message'    => 'required|string',
