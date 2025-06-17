@@ -6,6 +6,7 @@ use App\Models\QuoteRequest;
 use App\Models\QuoteAlternative;
 use App\Services\AssistantFlow\AdminMessageForAssistantService;
 use App\Services\AssistantFlow\RetrieveMessageService;
+use App\Services\Messages\StoreMessageService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,16 +20,19 @@ class QuoteAlternativeService
     private AdminMessageForAssistantService $sendToAssistant;
     private RetrieveMessageService $retrieveMessageService;
     private MessageFormatterService $messageFormatter;
+    private StoreMessageService $storeMessage;
 
     public function __construct(
         QuoteRequestService $quoteRequestService, 
         AdminMessageForAssistantService $sendToAssistant,
         RetrieveMessageService $retrieveMessageService,
-        MessageFormatterService $messageFormatter){
+        MessageFormatterService $messageFormatter,
+        StoreMessageService $storeMessage,){
             $this->quoteRequestService = $quoteRequestService;
             $this->sendToAssistant = $sendToAssistant;
             $this->retrieveMessageService = $retrieveMessageService;
             $this->messageFormatter = $messageFormatter;
+            $this->storeMessage = $storeMessage;
     }
 
     /**
@@ -109,7 +113,7 @@ class QuoteAlternativeService
 
             // Llama a tu servicio existente para añadir el mensaje al hilo y disparar el Run
             Log::info( __METHOD__ . ": Este es el mensaje que se enviara al asistente:", ['Mensaje:' => $adminMessage]);
-            $success = $this->sendToAssistant->sendAdminMessageForAssistant( $threadId, $adminMessage);
+            $openaiUserMessage = $this->sendToAssistant->sendAdminMessageForAssistant( $threadId, $adminMessage, $quoteRequest->lead);
             
             //recuperar el ultimo mensaje del hilo
             $msg = $this->retrieveMessageService->getLastMessage( $threadId);
@@ -117,6 +121,7 @@ class QuoteAlternativeService
                 'Ultimo Mensaje' => $msg
             ]);
             
+            $this->storeMessage->store($quoteRequest->lead, 'assistant', $msg['message'], $openaiUserMessage);
 
             // despachar el evento
             // --- LÍNEA DE DEPURACIÓN CRUCIAL ---

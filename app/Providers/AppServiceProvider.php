@@ -6,6 +6,7 @@ use App\Http\Controllers\Quotes\QuoteAlternativeController;
 use App\Services\AssistantFlow\RetrieveMessageService;
 use App\Services\AssistantFlow\ThreadManagerService;
 use App\Services\Messages\MessageFormatterService;
+use App\Services\Messages\StoreMessageService;
 use App\Services\Quotes\QuoteAlternativeService;
 use App\Services\Quotes\QuoteRequestService;
 use Illuminate\Support\ServiceProvider;
@@ -28,7 +29,8 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(QuoteRequestService::class), // Inyecta QuoteRequestService
                 $app->make(AdminMessageForAssistantService::class),
                 $app->make(RetrieveMessageService::class), // Inyecta QuoteRequestService
-                $app->make(MessageFormatterService::class)
+                $app->make(MessageFormatterService::class),
+                $app->make(StoreMessageService::class)
                 // Si QuoteAlternativeService tuviera más dependencias, las inyectarías aquí también
                 // $app->make(ThreadManagerService::class),
             );
@@ -63,7 +65,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdminMessageForAssistantService::class, function ($app) { // <-- Nuevo nombre
             return new AdminMessageForAssistantService( // <-- Nuevo nombre
                 $app->make(ThreadManagerService::class),
-                $app->make(MessageFormatterService::class)
+                $app->make(MessageFormatterService::class),
+                $app->make(StoreMessageService::class),
             );
         });
 
@@ -72,6 +75,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MessageFormatterService::class, function ($app) {
             return new MessageFormatterService();
         });
+
     }
 
     /**

@@ -34,7 +34,7 @@ class RetrieveMessageService {
                 
                 try {
                     $finalResponse['message'] = $this->messageFormatter->formatForWeb($msg->content[0]->text->value);
-                    Log::info('Ultimo mensaje del thread encontrado con exito en' . __METHOD__);
+                    Log::info(__METHOD__.'AQUI', ['Mensaje' => $msg->content[0]]);
                     return $finalResponse; // Retorna la primera respuesta del asistente encontrada
                 
                 } catch (\Throwable $th) {

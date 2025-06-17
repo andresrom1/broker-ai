@@ -3,6 +3,7 @@
 namespace App\Services\AssistantFlow; // Lo guardo en AssistantFlow porque es parte del flujo del assistant
 
 use App\Services\Messages\MessageFormatterService;
+use App\Services\Messages\StoreMessageService;
 use Illuminate\Support\Facades\Log;
 use OpenAI\Laravel\Facades\OpenAI;
 use App\Services\AssistantFlow\ThreadManagerService;
@@ -11,12 +12,15 @@ class AdminMessageForAssistantService // <-- Nuevo nombre de la clase
 {
     protected ThreadManagerService $threadManager;
     protected MessageFormatterService $messageFormatter;
+    protected StoreMessageService $storeMessage;
     protected string $assistantId;
 
     public function __construct(
         ThreadManagerService $threadManager,
-        MessageFormatterService $messageFormatter
+        MessageFormatterService $messageFormatter,
+        StoreMessageService $storeMessage,
     ) {
+        $this->storeMessage = $storeMessage;
         $this->threadManager = $threadManager;
         $this->messageFormatter = $messageFormatter;
         $this->assistantId = env('OPENAI_ASSISTANT_ID', 'asst_8XHbWmWOrpTeqKKB23nsk3Hh'); 
@@ -29,9 +33,10 @@ class AdminMessageForAssistantService // <-- Nuevo nombre de la clase
      *
      * @param string $threadId El threadId del hilo del assistant
      * @param string $adminMessageContent El contenido del mensaje del administrador en texto plano.
-     * @return bool True si el mensaje fue añadido al thread y se inició un Run, false en caso contrario.
+     * @param mixed $lead El lead al cual pertenece el threadId
+     * @return mixed Devuelve el Message Object de OpenAi 
      */
-    public function sendAdminMessageForAssistant($threadId, string $adminMessageContent): bool // <-- Nuevo nombre del método
+    public function sendAdminMessageForAssistant($threadId, string $adminMessageContent, $lead): mixed // <-- Nuevo nombre del método
     {
         Log::info('Intentando enviar mensaje de admin para contexto del asistente.', ['threadId' => $threadId]);
 
@@ -47,7 +52,7 @@ class AdminMessageForAssistantService // <-- Nuevo nombre de la clase
             
             // 3. Añadir el mensaje al thread con el rol 'assistant'.
             // Esto es crucial para que el Asistente de IA lo reconozca como contexto interno.
-            OpenAI::threads()->messages()->create($threadId, [
+            $openaiUserMessage = OpenAI::threads()->messages()->create($threadId, [
                 'role'    => 'assistant', // user | assistant El rol es 'assistant' para que el Asistente lo procese como contexto interno
                 'content' => $formattedMessage,
             ]);
@@ -71,7 +76,9 @@ class AdminMessageForAssistantService // <-- Nuevo nombre de la clase
             } while (!in_array($run->status, ['completed', 'failed', 'cancelled', 'expired'])); // Espera hasta un estado final
             Log::info(__METHOD__. ' ' .__LINE__. 'El status del run es:', [ 'Ejecuta en:' => 'AdminMessageForAssistantService.php', 'Run Status' => $run->status]);
 
-            return true;
+            //$this->storeMessage->store($lead,'assistant', $formattedMessage, $openaiUserMessage);
+
+            return $openaiUserMessage;
 
         } catch (\Exception $e) {
             Log::error('Fallo al enviar mensaje de admin para contexto del asistente.', [
