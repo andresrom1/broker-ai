@@ -24,6 +24,7 @@ class QuoteAlternativeController extends Controller {
             'alternatives.*.price'     => 'required|integer',
             'alternatives.*.coverage'  => 'required|string',
             'alternatives.*.observations' => 'nullable|string',
+            'alternatives.*.pdf_file'       => 'nullable|file|mimes:pdf|max:5000', // Campo para el archivo PDF
         ]);
         Log::info(__METHOD__.__LINE__, ['Request:' => $data]);
         

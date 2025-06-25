@@ -40,7 +40,8 @@ class OpenAiChatController extends Controller
         try {
             $reply = $this->assistant->sendMessage(
                 $validated['session_id'], 
-                $validated['message']
+                $validated['message'],
+                
             );
 
             return response()->json(['reply' => $reply]);
@@ -80,10 +81,10 @@ class OpenAiChatController extends Controller
             // Recuperar todos los mensajes asociados a este Lead, ordenados por fecha de creación
             $messages = $this->messageModel->where('lead_id', $lead->id)
                                           ->orderBy('created_at', 'asc')
-                                          ->get(['role', 'content']) // Seleccionar solo las columnas necesarias
+                                          ->get(['role', 'content','meta_data']) // Seleccionar solo las columnas necesarias
                                           ->toArray();
 
-            Log::info('Mensajes históricos recuperados.', ['session_id' => $sessionId, 'message_count' => count($messages)]);
+            Log::info('Mensajes históricos recuperados.', ['session_id' => $sessionId, 'Mensajes' => $messages]);
 
             return response()->json(['messages' => $messages]);
 

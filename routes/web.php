@@ -12,9 +12,11 @@ Route::get('/', function () {
 
 Route::get('/dispatch', function () {
     // Reemplaza 'TU_SESSION_ID_DEL_FRONTEND' con el sessionId real de tu navegador/ChatWidget
-    $sessionId = 'g8QfUQu4qze82aAtp9HyPbaM';
+    $sessionId = 'mbza9ecdotbb7m3c95';
 
     $quoteRequestId = 1; // Puedes usar cualquier ID de quote request válido o uno para pruebas
+
+    $metaData = ['link' => '/storage/quote_attachments/2/RyztrzmJLEB7jURMCRVe4b3YzmhPODO4d8ziiibx.pdf' , 'type' => 'quote_link'];
 
     $alternatives = [
         [
@@ -37,7 +39,8 @@ Route::get('/dispatch', function () {
         $quoteRequestId,
         $alternatives,
         $sessionId,
-        $message
+        $message,
+        $metaData
     ));
 });
 

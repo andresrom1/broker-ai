@@ -33,7 +33,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center mb-4">
-                        <svg class="h-6 w-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Información del Vehículo</h3>
@@ -48,19 +48,19 @@
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Versión</dt>
                             <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $request->vehicle_version }}</dd>
                         </div>
-                        <div class="bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-900 p-4 rounded-lg">
+                        <div class="bg-gray-100 dark:bg-gray-700 border-2 dark:border-gray-900 p-4 rounded-lg">
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Año</dt>
                             <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $request->vehicle_year ?? 'No especificado' }}</dd>
                         </div>
-                        <div class="bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-900 p-4 rounded-lg">
+                        <div class="bg-gray-100 dark:bg-gray-700 border-2 dark:border-gray-900 p-4 rounded-lg">
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">GNC</dt>
-                            <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $request->fuel ? "Si":"No" }}</dd>
+                            <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $request->vehicle_fuel ? "Sí":"No" }}</dd>
                         </div>
-                        <div class="bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-900 p-4 rounded-lg">
+                        <div class="bg-gray-100 dark:bg-gray-700 border-2 dark:border-gray-900 p-4 rounded-lg">
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Cobertura</dt>
                             <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{{ ucwords(str_replace("_"," ",$request->coverage_type)) ?? 'No especificado' }}</dd>
                         </div>
-                        <div class="bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-900 p-4 rounded-lg">
+                        <div class="bg-gray-100 dark:bg-gray-700 border-2 dark:border-gray-900 p-4 rounded-lg">
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Código Postal</dt>
                             <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $request->vehicle_postal_code}}</dd>
                         </div>
@@ -93,98 +93,120 @@
                 <div class="p-6">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
                         <div class="flex items-center mb-4 sm:mb-0">
-                            <svg class="h-6 w-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="h-6 w-6 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                             </svg>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Alternativas de Cotización</h3>
                         </div>
-                        <button type="button" id="addAlternative" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm w-full sm:w-auto">
-                            + Agregar Alternativa
-                        </button>
+                        {{-- El botón "Agregar Alternativa" ha sido removido ya que su funcionalidad dependía de JavaScript. --}}
                     </div>
 
-                    <form method="POST" action="/admin/quotes/{{ $request->id }}" id="alternativesForm">
+                    {{-- Añadir enctype para subida de archivos --}}
+                    <form method="POST" enctype="multipart/form-data" action="/admin/quotes/{{ $request->id }}" id="alternativesForm">
                         @csrf
                         
                         <div id="alternativesContainer" class="space-y-6">
-                            @for($i = 0; $i < 2; $i++)
-                            <div class="alternative-card border border-gray-200 dark:border-gray-600 rounded-lg p-6 bg-gray-50 dark:bg-gray-700" data-index="{{ $i }}">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h4 class="text-md font-semibold text-gray-900 dark:text-gray-100">Alternativa {{ $i + 1 }}</h4>
-                                    @if($i > 1)
-                                    <button type="button" class="remove-alternative text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
-                                    @endif
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="company_{{ $i }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Compañía de Seguros *
-                                        </label>
-                                        <input type="text" 
-                                               id="company_{{ $i }}"
-                                               name="alternatives[{{ $i }}][company]" 
-                                               class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
-                                               placeholder="Ej: Mapfre, Sancor, etc."
-                                               required>
+                            @php
+                                // Obtener las alternativas existentes
+                                $existingAlternatives = $request->alternatives;
+                                // Definir un mínimo de campos vacíos para nuevas entradas
+                                $minEmptyFields = 2;
+                                // Determinar cuántos campos de alternativa debemos mostrar en total
+                                // Esto será el máximo entre el número de alternativas existentes y el mínimo de campos vacíos.
+                                $totalFieldsToShow = max($existingAlternatives->count(), $minEmptyFields);
+                            @endphp
+
+                            @for($i = 0; $i < $totalFieldsToShow; $i++)
+                                @php
+                                    // Obtener la alternativa existente si está disponible, de lo contrario será null
+                                    $alternative = $existingAlternatives->get($i);
+                                @endphp
+                                <div class="alternative-card border border-gray-200 dark:border-gray-600 rounded-lg p-6 bg-gray-50 dark:bg-gray-700" data-index="{{ $i }}">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4 class="text-md font-semibold text-gray-900 dark:text-gray-100">Alternativa {{ $i + 1 }}</h4>
+                                        {{-- El botón de remover alternativa ha sido removido. Para eliminar, necesitarías una recarga de página o JS. --}}
                                     </div>
                                     
-                                    <div>
-                                        <label for="price_{{ $i }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Precio Mensual *
-                                        </label>
-                                        <div class="relative">
-                                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
-                                            <input type="number" 
-                                                   id="price_{{ $i }}"
-                                                   name="alternatives[{{ $i }}][price]" 
-                                                   class="w-full pl-8 border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
-                                                   placeholder="0.00"
-                                                   step="0.01"
-                                                   required>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="company_{{ $i }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Compañía de Seguros *
+                                            </label>
+                                            <input type="text" 
+                                                id="company_{{ $i }}"
+                                                name="alternatives[{{ $i }}][company]" 
+                                                value="{{ old('alternatives.'.$i.'.company', $alternative->company ?? '') }}"
+                                                class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                                placeholder="Ej: Mapfre, Sancor, etc."
+                                                required>
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="price_{{ $i }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Precio Mensual *
+                                            </label>
+                                            <div class="relative">
+                                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+                                                <input type="number" 
+                                                    id="price_{{ $i }}"
+                                                    name="alternatives[{{ $i }}][price]" 
+                                                    value="{{ old('alternatives.'.$i.'.price', $alternative->price ?? '') }}"
+                                                    class="w-full pl-8 border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                                    placeholder="0.00"
+                                                    step="0.01"
+                                                    required>
+                                            </div>
                                         </div>
                                     </div>
+                                    
+                                    <div class="mt-4">
+                                        <label for="coverage_{{ $i }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Tipo de Cobertura *
+                                        </label>
+                                        <select id="coverage_{{ $i }}"
+                                                name="alternatives[{{ $i }}][coverage]" 
+                                                class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                                required>
+                                            <option value="">Seleccionar cobertura</option>
+                                            <option value="responsabilidad_civil" {{ (old('alternatives.'.$i.'.coverage', $alternative->coverage ?? '') == 'responsabilidad_civil') ? 'selected' : '' }}>Responsabilidad Civil</option>
+                                            <option value="terceros_completo" {{ (old('alternatives.'.$i.'.coverage', $alternative->coverage ?? '') == 'terceros_completo') ? 'selected' : '' }}>Terceros Completo</option>
+                                            <option value="todo_riesgo" {{ (old('alternatives.'.$i.'.coverage', $alternative->coverage ?? '') == 'todo_riesgo') ? 'selected' : '' }}>Todo Riesgo</option>
+                                            <option value="todo_riesgo_premium" {{ (old('alternatives.'.$i.'.coverage', $alternative->coverage ?? '') == 'todo_riesgo_premium') ? 'selected' : '' }}>Todo Riesgo Premium</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <label for="observations_{{ $i }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Observaciones
+                                        </label>
+                                        <textarea id="observations_{{ $i }}"
+                                                name="alternatives[{{ $i }}][observations]" 
+                                                rows="3"
+                                                class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                                placeholder="Detalles adicionales, descuentos, condiciones especiales...">{{ old('alternatives.'.$i.'.observations', $alternative->observations ?? '') }}</textarea>
+                                    </div>
+
+                                    {{-- Campo de subida de archivo PDF --}}
+                                    <div class="mb-3 mt-4">
+                                        <label for="alternatives_{{ $i }}_pdf_file" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Adjuntar PDF (Opcional):</label>
+                                        <input type="file" name="alternatives[{{ $i }}][pdf_file]" id="alternatives_{{ $i }}_pdf_file" accept=".pdf" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-100 dark:hover:file:bg-blue-800">
+                                        @if($alternative && $alternative->attachments->isNotEmpty())
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Adjuntos actuales:</p>
+                                            <ul class="list-disc ml-5">
+                                                @foreach($alternative->attachments as $attachment)
+                                                    <li><a href="{{ asset($attachment->file_url) }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">{{ $attachment->file_name }}</a></li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </div>
                                 </div>
-                                
-                                <div class="mt-4">
-                                    <label for="coverage_{{ $i }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Tipo de Cobertura *
-                                    </label>
-                                    <select id="coverage_{{ $i }}"
-                                            name="alternatives[{{ $i }}][coverage]" 
-                                            class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
-                                            required>
-                                        <option value="">Seleccionar cobertura</option>
-                                        <option value="responsabilidad_civil">Responsabilidad Civil</option>
-                                        <option value="todo_riesgo_premium">Robo e Incendio</option>
-                                        <option value="terceros_completo">Terceros Completo</option>
-                                        <option value="todo_riesgo">Todo Riesgo</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="mt-4">
-                                    <label for="observations_{{ $i }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Observaciones
-                                    </label>
-                                    <textarea id="observations_{{ $i }}"
-                                              name="alternatives[{{ $i }}][observations]" 
-                                              rows="3"
-                                              class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
-                                              placeholder="Detalles adicionales, descuentos, condiciones especiales..."></textarea>
-                                </div>
-                            </div>
                             @endfor
                         </div>
 
                         <input type="hidden" name="quote_request_id" value="{{ $request->id }}">
                         
-                        {{-- Buttons now stack on small screens and spread on larger ones --}}
                         <div class="mt-8 flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
-                            <button type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded w-full sm:w-auto">
+                            <button type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded w-full sm:w-auto dark:bg-gray-600 dark:hover:bg-gray-700 dark:text-gray-200">
                                 Guardar como Borrador
                             </button>
                             <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded w-full sm:w-auto">
@@ -196,106 +218,4 @@
             </div>
         </div>
     </div>
-
-    @push('scripts')
-    <script>
-        let alternativeCount = 2; // Initialize with the number of alternatives already rendered by Blade
-        
-        document.getElementById('addAlternative').addEventListener('click', function() {
-            const container = document.getElementById('alternativesContainer');
-            const newAlternative = createAlternativeCard(alternativeCount);
-            container.appendChild(newAlternative);
-            alternativeCount++;
-            updateAlternativeNumbers(); // Update numbers after adding
-        });
-        
-        function createAlternativeCard(index) {
-            const div = document.createElement('div');
-            div.className = 'alternative-card border border-gray-200 dark:border-gray-600 rounded-lg p-6 bg-gray-50 dark:bg-gray-700';
-            div.setAttribute('data-index', index);
-            
-            div.innerHTML = `
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-gray-100">Alternativa ${index + 1}</h4>
-                    <button type="button" class="remove-alternative text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Compañía de Seguros *</label>
-                        <input type="text" name="alternatives[${index}][company]" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" placeholder="Ej: Mapfre, Sancor, etc." required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Mensual *</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
-                            <input type="number" name="alternatives[${index}][price]" class="w-full pl-8 border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" placeholder="0.00" step="0.01" required>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Cobertura *</label>
-                    <select name="alternatives[${index}][coverage]" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                        <option value="">Seleccionar cobertura</option>
-                        <option value="responsabilidad_civil">Responsabilidad Civil</option>
-                        <option value="terceros_completo">Terceros Completo</option>
-                        <option value="todo_riesgo">Todo Riesgo</option>
-                        <option value="todo_riesgo_premium">Todo Riesgo Premium</option>
-                    </select>
-                </div>
-                
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observaciones</label>
-                    <textarea name="alternatives[${index}][observations]" rows="3" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" placeholder="Detalles adicionales, descuentos, condiciones especiales..."></textarea>
-                </div>
-            `;
-            
-            // Add event listener to the remove button
-            div.querySelector('.remove-alternative').addEventListener('click', function() {
-                div.remove();
-                updateAlternativeNumbers();
-            });
-            
-            return div;
-        }
-        
-        // Event listeners for existing remove buttons (initial render)
-        // This attaches event listeners to all remove buttons currently in the DOM.
-        document.querySelectorAll('.remove-alternative').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.target.closest('.alternative-card').remove();
-                updateAlternativeNumbers();
-            });
-        });
-
-        // Ensure that the initial alternative count matches the number of rendered alternatives
-        // This is important if $request->alternatives is populated and you loop through it
-        // for rendering initial cards instead of just hardcoding 2.
-        alternativeCount = document.querySelectorAll('.alternative-card').length;
-        
-        function updateAlternativeNumbers() {
-            const cards = document.querySelectorAll('.alternative-card');
-            cards.forEach((card, index) => {
-                const title = card.querySelector('h4');
-                title.textContent = `Alternativa ${index + 1}`;
-                // Update the 'name' attributes for inputs and selects to maintain correct array indexing
-                card.querySelectorAll('input, select, textarea').forEach(input => {
-                    const originalName = input.name;
-                    if (originalName && originalName.startsWith('alternatives[')) {
-                        input.name = `alternatives[${index}]` + originalName.substring(originalName.indexOf(']'));
-                        input.id = originalName.substring(0, originalName.indexOf('_')) + `_${index}`; // Update ID for labels
-                    }
-                });
-                card.setAttribute('data-index', index); // Also update data-index
-            });
-            // After removing, ensure alternativeCount is accurate for adding new ones
-            alternativeCount = cards.length;
-        }
-    </script>
-    @endpush
 </x-app-layout>

@@ -9,7 +9,17 @@ class QuoteAlternative extends Model {
         'quote_request_id', 'company', 'price', 'coverage', 'observations'
     ];
 
-    public function request() {
+    public function quoteRequest() {
         return $this->belongsTo(QuoteRequest::class);
     }
+    
+    /**
+     * Define la relación: una alternativa puede tener muchos adjuntos.
+     */
+
+    public function attachments()
+    {
+        return $this->hasMany(QuoteAlternativeAttachment::class, 'quote_alternative_id');
+    }
+
 }

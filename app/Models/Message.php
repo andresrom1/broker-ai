@@ -19,7 +19,20 @@ class Message extends Model
         'role',                // Rol del remitente: 'user', 'assistant', 'admin'
         'content',             // Contenido textual del mensaje
         'openai_message_id',   // ID del mensaje en OpenAI (opcional, para referencia)
+        'meta_data',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'meta_data' => 'array',
+        ];
+    }
 
     /**
      * Define la relación: un mensaje pertenece a un Lead.

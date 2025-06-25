@@ -76,11 +76,14 @@ class AssistantService
         Log::info(__METHOD__.__LINE__.'User message added to thread', ['thread_id' => $threadId, 'message' => $message]);
 
         // 2.1. Guardar mensaje del usuario en la base de datos
+        $metaData = ['link' => null,
+                        'type' => 'assistant_response'];
         $this->message->create([
             'lead_id' => $lead->id,
             'role' => 'user',
             'content' => $message,
             'openai_message_id' => $openaiUserMessage->id, // Guardar el ID de OpenAI para referencia
+            'meta_data' => $metaData,
         ]);
         Log::info(__METHOD__.__LINE__.'User message saved to database', ['lead_id' => $lead->id, 'message_id' => $openaiUserMessage->id]);
 
@@ -118,6 +121,7 @@ class AssistantService
                             'role' => 'assistant',
                             'content' => $msg->content[0]->text->value,
                             'openai_message_id' => $msg->id,
+                            'meta_data' => ['type' => 'assistant_response']
                         ]);
                         Log::info(__METHOD__.__LINE__.'Assistant message saved to database', ['lead_id' => $lead->id, 'message_id' => $msg->id]);
                     } else {
@@ -125,6 +129,7 @@ class AssistantService
                     }
 
                     $finalResponse['message'] = $this->messageFormatter->formatForWeb($msg->content[0]->text->value);
+                    $finalResponse['meta_data'] = ['type' => 'assistant_response'];
                     return $finalResponse; // Retorna la primera respuesta del asistente encontrada
                 }
             }

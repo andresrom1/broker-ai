@@ -15,195 +15,104 @@
       </div>
       <div class="status-dot"></div>
     </div>
-
-    <!-- Área de mensajes -->
-    <div ref="messagesContainer" class="messages-area">
-      <div v-for="(msg, index) in messages" :key="index" 
-      :class="['message-wrapper', msg.from === 'user' ? 'user-message' : 'bot-message' ]">
     
-        <!-- Mensaje comun -->
-        <div v-if="msg?.meta_data && msg.meta_data?.type === 'assistant_response'" class="message-bubble" :class="[msg.from === 'user' ? 'user-bubble' : 'bot-bubble']">
-          <div class="message-text">{{ msg.text }}</div>
-          <!-- Added time bubble -->
-          <div :class="[
-            'absolute text-xxxs',
-            msg.from === 'user' ? 'bottom-1 right-2 text-blue-100' : 'bottom-1 right-2 text-gray-500']">
-            12:33 p.m.
-          </div>
-        </div>
+    <!-- Área de mensajes -->
+    <div ref="messageContainer" class="h-96 overflow-y-auto border border-gray-300 dark:border-gray-700 p-3 rounded-md mb-4 bg-gray-50 dark:bg-gray-700 messages-area">
+      <div v-for="(message, index) in messages" :key="index"
+        :class="['message-wrapper', message.role === 'user' ? 'user-message' : 'bot-message']">
         
-        <!-- Tarjeta de cotizacion -->
-        <!-- <div v-else-if="msg.meta_data && msg.meta_data.type === 'quote_alternative'" class="message-bubble" :class="[msg.from === 'user' ? 'user-bubble' : 'bot-bubble']">
-          <div class="message-text">{{ msg.text }}</div>
-          <div :class="[
-            'absolute text-xxxs',
-            msg.from === 'user' ? 'bottom-1 right-2 text-blue-100' : 'bottom-1 right-2 text-gray-500']">
-            12:33 p.m.
-          </div>
-        </div> -->
-        
-        <!-- Tarjeta de Cotización Alternativa -->
-        <div v-else-if="msg.meta_data && msg.meta_data.type === 'quote_alternative'" class="bg-white rounded-xl shadow-lg border-l-4 border-orange-400 overflow-hidden hover:shadow-xl transition-all duration-300">
-            
-            <!-- Header con icono y etiqueta -->
-            <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-3 border-b border-orange-100">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <div class="bg-orange-100 p-2 rounded-lg">
-                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-800">Cotización Alternativa</h3>
-                            <p class="text-xs text-orange-600">Opción recomendada</p>
-                        </div>
-                    </div>
-                    <div class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                        ALT
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Contenido principal -->
-            <div class="p-4">
-                <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                    <p class="text-sm text-gray-700 leading-relaxed">
-                      {{ msg.text }}
-                    </p>
-                </div>
-                
-                <!-- Información adicional -->
-                <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                    <div class="flex items-center space-x-1">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>Válida por 30 días</span>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span>Verificada</span>
-                    </div>
-                </div>
-                
-                <!-- Botones de acción -->
-                <div class="flex space-x-2">
-                    <button class="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <span>Aceptar</span>
-                    </button>
-                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span>Detalles</span>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Footer con timestamp -->
-            <div class="bg-orange-50 px-4 py-2 border-t border-orange-100">
-                <div class="text-right">
-                    <span class="text-xs text-orange-600 font-medium">12:33 p.m.</span>
-                </div>
-            </div>
-        </div>
-                
+        <!-- Contenedor interno para las burbujas de mensaje -->
+        <div class="inline-block my-1 relative">
+          <!-- Usamos <template> para agrupar las condiciones y asegurar la adyacencia -->
+          <template v-if="message.meta_data && message.meta_data.type === 'quote_alternatives'">
+            <!-- Si es una tarjeta de alternativas de cotización -->
+            <div class="message-bubble bot-bubble text-left p-3 rounded-md shadow-sm bg-green-100 dark:bg-green-700 border border-green-300 dark:border-green-600 text-green-800 dark:text-green-100"
+                 style="max-width: 80%;">
+              <h3 class="font-semibold text-green-700 dark:text-green-200 mb-2">¡Tu cotización está lista!</h3>
+              <p class="text-green-800 dark:text-green-100 mb-3" v-html="message.content"></p> 
+              
+              <div v-for="(alt, altIndex) in message.meta_data.data" :key="altIndex" class="mb-2 p-2 bg-green-50 dark:bg-green-600 rounded-md shadow-sm">
+                <p><strong>Opción {{ altIndex + 1 }}:</strong></p>
+                <p>Compañía: {{ alt.company }}</p>
+                <p>Cobertura: {{ alt.coverage }}</p>
+                <p>Precio Mensual: ${{ alt.price }}</p>
+                <p v-if="alt.observations">Observaciones: {{ alt.observations }}</p>
 
-        <!-- Tarjeta de Link Elegante -->
-        <div v-else-if="msg.meta_data && msg.meta_data.type === 'quote_link'" class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-            <!-- Header con icono -->
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <span class="text-white font-medium text-sm">Enlace de Descarga</span>
+                <!-- Mostrar adjuntos anidados si existen (dentro de la tarjeta de cotización) -->
+                <div v-if="alt.attachments && alt.attachments.length > 0" class="mt-2 text-sm">
+                  <p class="font-semibold text-green-700 dark:text-green-200">Documentos de Alternativa:</p>
+                  <ul class="list-disc ml-4">
+                    <li v-for="(attachment, attIndex) in alt.attachments" :key="attIndex">
+                      <a :href="attachment.file_url" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">
+                        <svg class="inline-block w-4 h-4 mr-1 -mt-0.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V7.414L10.586 4H6zM10 10a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                        {{ attachment.file_name }}
+                      </a>
+                    </li>
+                  </ul>
                 </div>
+              </div>
+              <p class="text-green-800 dark:text-green-100 mt-3">Si tenés alguna pregunta o querés proceder con alguna de estas opciones, no dudes en consultarnos.</p>
             </div>
-            
-            <!-- Contenido -->
-            <div class="p-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm text-gray-600 mb-1">Archivo disponible</p>
-                        <p class="text-xs text-gray-500 truncate font-mono bg-gray-50 px-2 py-1 rounded">
-                            {{ msg.meta_data.link }}
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Botón de acción -->
-                <div class="mt-4 flex space-x-2">
-                    <button class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
-                        <span>Descargar</span>
-                    </button>
-                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 rounded-lg transition-colors duration-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                        </svg>
-                    </button>
-                </div>
+          </template>
+
+          <template v-else-if="message.meta_data && message.meta_data.type === 'single_attachment'">
+            <!-- Si es un link de adjunto individual (con estilo especial) -->
+            <div class="message-bubble bot-bubble text-left p-3 rounded-lg shadow-md bg-blue-100 dark:bg-blue-700 border border-blue-300 dark:border-blue-600 text-blue-800 dark:text-blue-100 flex items-center space-x-2"
+                 style="max-width: 80%;">
+              <svg class="w-6 h-6 flex-shrink-0 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V7.414L10.586 4H6zM10 10a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1z" clip-rule="evenodd"></path>
+              </svg>
+              <div>
+                <p class="font-semibold text-blue-800 dark:text-blue-100" v-html="message.content"></p>
+                <a :href="message.meta_data.data.file_url" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline text-sm break-all">
+                  {{ message.meta_data.data.file_name }}
+                </a>
+              </div>
             </div>
-            
-            <!-- Footer con tiempo -->
-            <div class="bg-gray-50 px-4 py-2 border-t border-gray-100">
-                <div class="text-right">
-                    <span class="text-xxxs text-gray-500">12:33 p.m.</span>
-                </div>
+          </template>
+
+          <template v-else>
+            <!-- Si es un mensaje de texto normal -->
+            <div class="message-bubble" 
+                 :class="[
+                    message.role === 'user' ? 'user-bubble' : 'bot-bubble',
+                    'inline-block px-4 py-2 rounded-lg relative pr-10' // Original Tailwind classes for normal bubbles
+                  ]">
+              <div class="message-text" v-html="message.content"></div>
+              <!-- Added time bubble -->
+              <span :class="[
+                'absolute text-xs mt-1',
+                message.role === 'user' ? 'bottom-1 right-2 text-blue-200' : 'bottom-1 right-2 text-gray-500 dark:text-gray-300'
+              ]">
+                <!-- Esto es un marcador de posición, deberías usar la hora real del mensaje si está disponible -->
+                {{ new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
+              </span>
             </div>
+          </template>
         </div>
-      
       </div>
-      
-      
-      <!-- Indicador de escritura sutil -->
-      <Transition name="typing" appear>
-        <div v-if="loading" class="message-wrapper bot-message">
-          <div class="message-bubble bot-bubble">
-            <div class="typing-indicator">
-              <div class="typing-dot"></div>
-              <div class="typing-dot"></div>
-              <div class="typing-dot"></div>
-            </div>
-          </div>
-        </div>
-      </Transition>
     </div>
 
-    <!-- Contenedor de entrada de mensaje -->
-    <div class="input-container">
-      <div class="input-wrapper">
-        <input
-          v-model="input"
-          @keydown.enter="handleInput"
-          type="text"
-          placeholder="Escribe tu mensaje..."
-          class="message-input"
-          :disabled="loading"
-        />
-        <button
-          @click="handleInput"
-          class="send-button"
-          :disabled="loading || !input.trim()"
-        >
-          <!-- Icono de enviar -->
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
-          </svg>
-        </button>
-      </div>
+    <!-- Área de entrada de texto -->
+    <div class="flex">
+      <input 
+        type="text" 
+        v-model="input" 
+        @keyup.enter="sendMessage" 
+        placeholder="Escribe tu mensaje..." 
+        class="flex-1 p-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button 
+        @click="sendMessage" 
+        class="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Enviar
+      </button>
     </div>
   </div>
 </template>
+
+
 
 <script setup>
 import { ref, nextTick, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
@@ -215,16 +124,15 @@ const loading = ref(false)
 const messagesContainer = ref(null)
 const sessionId = ref(localStorage.getItem('session_id') || generateSessionId())
 
-
 function generateSessionId() {
   const id = Date.now().toString(36) + Math.random().toString(36).substring(2)
   localStorage.setItem('session_id', id)
   return id
 }
 
-function appendMessage(from, text, meta_data) {
-  console.log(from,text,meta_data)
-  messages.value.push({ from, text, meta_data, timestamp: new Date() })  
+function appendMessage(from, text) {
+  console.log(from,text);
+  messages.value.push({ from, text, timestamp: new Date() })
   scrollToBottom()
 }
 
@@ -240,7 +148,7 @@ async function handleInput() {
   const text = input.value.trim()
   if (!text || loading.value) return
   
-  appendMessage('user', text, {'type': 'assistant_response'})
+  appendMessage('user', text)
   input.value = ''
   loading.value = true
 
@@ -248,11 +156,8 @@ async function handleInput() {
     const res = await axios.post('/api/chat/send', {
       session_id: sessionId.value,
       message: text,
-      //meta_data: {type: 'assistant_response'}
     })
-    console.log(res.data.reply.message)
-    console.log(res.data.reply)
-    appendMessage('bot', res.data.reply.message, res.data.reply.meta_data)
+    appendMessage('bot', res.data.reply.message)
     console.log('aqui en vue')
     console.log(res)
   } catch (e) {
@@ -263,38 +168,37 @@ async function handleInput() {
   }
 }
 
-const fetchMessages = () => {
-  axios.get('/api/messages', {
-    params: {
-      session_id: sessionId.value
-    }
-  })
-  .then(response => {
+// --- NUEVA FUNCIÓN: Obtener mensajes del backend ---
+const fetchMessages = async () => {
+  try {
+    const response = await axios.get('/api/messages', { // Nuevo endpoint para obtener mensajes
+      params: {
+        session_id: sessionId.value
+      }
+    });
     if (response.data && response.data.messages) {
-          response.data.messages.forEach(message => {
-        appendMessage(message.role, message.content, message.meta_data);
+      //messages.value = response.data.messages; // Rellenar con mensajes de la DB
+      console.log('Mensajes anteriores cargados:', messages.value);
+      console.log('Response: ', response.data.messages);
+
+      response.data.messages.forEach(message => {
+        appendMessage(message.role, message.content)
       });
     }
-  })
-  .catch(error => {
+  } catch (error) {
     console.error('Error al cargar mensajes anteriores:', error);
     // Si no hay mensajes o falla, aún mostramos el mensaje inicial del asistente
     if (messages.value.length === 0) {
-      messages.value.push({ 
-        role: 'assistant', 
-        content: '¡Hola! ¿En qué puedo ayudarte hoy?',
-        meta_data: { type: 'system_message' }
-      });
+      messages.value.push({ role: 'assistant', content: '¡Hola! ¿En qué puedo ayudarte hoy?' });
     }
-  });
+  }
 };
-
 
 onMounted(() => {
   console.log('Componente montado. Session ID:', sessionId.value);
   initializeEcho();
 
-  appendMessage('bot', '¡Hola! Soy tu Broker Virtual. ¿En qué puedo ayudarte hoy?',{ 'type': 'assistant_response'});
+  appendMessage('bot', '¡Hola! Soy tu Broker Virtual. ¿En qué puedo ayudarte hoy?');
   fetchMessages(); // Llamar a la función para obtener mensajes
   scrollToBottom(); // Desplazar al final después de cargar los mensajes iniciales
   // async () => {
@@ -329,10 +233,9 @@ const initializeEcho = () => {
       // Actualizar el estado del componente con las alternativas recibidas
       //quotes.value = e.alternatives;
       //quotesAvailable.value = true;
-      console.log(e[0].message);
-      console.log(e[0].meta_data)
+      console.log(e);
       // Opcional: Puedes añadir un mensaje de chat para informar al usuario
-      appendMessage('bot', e[0].message,e[0].meta_data);
+      appendMessage('bot', e.message);
 
     })
     .error((error) => {

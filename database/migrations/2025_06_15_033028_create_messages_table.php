@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('lead_id')->constrained()->onDelete('cascade'); // Un mensaje pertenece a un Lead
             $table->string('role'); // 'user', 'assistant', 'admin'
             $table->text('content');
+            $table->json('meta_data')->nullable();
             $table->string('openai_message_id')->nullable()->unique(); // ID del mensaje en OpenAI (opcional, para referencia)
             $table->timestamps(); // created_at, updated_at
         });

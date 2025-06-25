@@ -18,16 +18,23 @@ class QuotesAlternativesUpdated implements ShouldBroadcast
     public array $alternatives;
     public string $sessionId;
     public string $message;
+    public ?array $metaData = null; 
 
     /**
      * Create a new event instance.
+     * @param mixed $quoteRequestId
+     * @param array $alternetives
+     * @param string $sessionId
+     * @param string $message
+     * @param array|null $metaData Un array con la metadata, por ej. [ 'link'=>true ]
      */
-    public function __construct(int $quoteRequestId, array $alternatives, string $sessionId, string $message)
+    public function __construct(int $quoteRequestId, array $alternatives, string $sessionId, string $message, ?array $metaData = null) 
     {
         $this->quoteRequestId = $quoteRequestId;
         $this->alternatives = $alternatives;
         $this->sessionId = $sessionId;
         $this->message = $message;
+        $this->metaData = $metaData;
     }
 
     /**
@@ -67,10 +74,16 @@ class QuotesAlternativesUpdated implements ShouldBroadcast
             'session_id' => $this->sessionId,
             'message' => $this->message,
         ]);
-        return [
+        
+        $data = [
             'quote_request_id' => $this->quoteRequestId,
-            'alternatives' => $this->alternatives,
+            'alternatives' => $this->alternatives, 
             'session_id' => $this->sessionId,
             'message' => $this->message,
-        ];}
+        ];
+        // Añadir metaData si está presente
+        if ($this->metaData !== null) {
+            $data['meta_data'] = $this->metaData;
+        }
+        return [$data];}
 }
