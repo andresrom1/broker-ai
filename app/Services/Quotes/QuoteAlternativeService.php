@@ -4,6 +4,7 @@ namespace App\Services\Quotes;
 
 use App\Models\QuoteRequest;
 use App\Models\QuoteAlternative;
+use App\Notifications\NewQuote;
 use App\Services\AssistantFlow\AdminMessageForAssistantService;
 use App\Services\AssistantFlow\RetrieveMessageService;
 use App\Services\Messages\StoreMessageService;
@@ -173,6 +174,16 @@ class QuoteAlternativeService
                 $msg['message'],
                 $metaData
             ));
+
+            // --- ¡NUEVO! Disparar la Notificación Push ---
+            // Solo se envía si el Lead tiene suscripciones push activas.
+            if ($quoteRequest->lead->pushSubscriptions->count() > 0) {
+                Log::info('Enviando notificación push para Lead.', ['lead_id' => $quoteRequest->lead->id, 'subscriptions_count' => $quoteRequest->lead->pushSubscriptions->count()]);
+                $quoteRequest->lead->notify(new NewQuote($quoteRequest, 'Ya esta lista tu cotizacion!'));
+            } else {
+                Log::info('No hay suscripciones push para este Lead, no se enviará notificación.', ['lead_id' => $quoteRequest->lead->id]);
+            }
+            // --- FIN NUEVO ---
            
             //Llama al servicio para agregar los mensajes con los links.
             // $adminMessage = "Mensaje del Agente: " . $messageContent . json_encode($broadcastableAlternatives);

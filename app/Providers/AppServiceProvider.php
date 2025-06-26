@@ -3,10 +3,15 @@
 namespace App\Providers;
 
 use App\Http\Controllers\Quotes\QuoteAlternativeController;
+use App\Models\Lead;
+use App\Models\Message;
+use App\Models\PushSubscription;
+use App\Models\QuoteRequest;
 use App\Services\AssistantFlow\RetrieveMessageService;
 use App\Services\AssistantFlow\ThreadManagerService;
 use App\Services\Messages\MessageFormatterService;
 use App\Services\Messages\StoreMessageService;
+use App\Services\Notifications\PushSubscriptionService;
 use App\Services\Quotes\QuoteAlternativeService;
 use App\Services\Quotes\QuoteRequestService;
 use Illuminate\Support\ServiceProvider;
@@ -74,6 +79,27 @@ class AppServiceProvider extends ServiceProvider
         // Este servicio es vital para formatear mensajes para el frontend.
         $this->app->bind(MessageFormatterService::class, function ($app) {
             return new MessageFormatterService();
+        });
+
+        $this->app->bind(Lead::class, function ($app) {
+            return new Lead();
+        });
+        $this->app->bind(Message::class, function ($app) {
+            return new Message();
+        });
+        $this->app->bind(QuoteRequest::class, function ($app) {
+            return new QuoteRequest();
+        });
+
+        $this->app->bind(PushSubscription::class, function ($app) {
+            return new PushSubscription();
+        });
+
+        $this->app->bind(PushSubscriptionService::class, function ($app) {
+            return new PushSubscriptionService(
+                $app->make(PushSubscription::class),
+                $app->make(Lead::class)
+            );
         });
 
     }
