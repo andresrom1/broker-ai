@@ -8,7 +8,7 @@ use Exception;
 
 class submitOutputStreamed {
 
-    public function submitOutputStreamed($threadId, $runId , $toolCallId, $result) {
+    public function SubmitOutputStreamed($threadId, $runId , $toolCallId, $result) {
              
         try {
             Log::info('Ingreso a la funcion submit output con un solo callId');
