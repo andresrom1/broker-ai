@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\Log;
 use OpenAI\Laravel\Facades\OpenAI;
 use Exception;
 
-class submitOutputStreamed {
+class SubmitOutputStreamed {
 
-    public function SubmitOutputStreamed($threadId, $runId , $toolCallId, $result) {
+    public function submitOutputStreamed($threadId, $runId , $toolCallId, $result) {
              
         try {
             Log::info('Ingreso a la funcion submit output con un solo callId');
