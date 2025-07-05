@@ -16,4 +16,13 @@ export default defineConfig({
             }
         }),
     ],
+    server: {
+        host: '0.0.0.0',  // Para que escuche en todas las interfaces, no solo localhost
+        port: 5173,       // Puerto que usás
+        hmr: {
+            // Cambialo a 'localhost' si accedés con localhost desde el navegador,
+            // o poné la IP/hostname que usás para acceder a Vite desde afuera del contenedor
+            host: 'localhost',  
+        },
+    },
 });
